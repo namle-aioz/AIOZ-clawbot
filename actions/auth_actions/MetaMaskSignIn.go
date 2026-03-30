@@ -36,25 +36,25 @@ func NewMetaMaskSignInAction(userRepo models.UserRepository, tokenIssuer utils.T
 func (a MetaMaskSignInAction) Exec(ctx context.Context, input MetaMaskSignInInput) (*SignInOutput, error) {
 	challenge, err := parseMetaMaskChallengeMessage(input.Message)
 	if err != nil {
-		return nil, response.NewHttpError(nil, "Invalid MetaMask challenge.", http.StatusBadRequest)
+		return nil, response.NewHttpError(nil, response.ErrInvalidMetaMaskChallenge, http.StatusBadRequest)
 	}
 
 	walletAddress := normalizeWalletAddress(input.WalletAddress)
 	if walletAddress == "" || challenge.WalletAddress != walletAddress {
-		return nil, response.NewHttpError(nil, "Wallet address does not match challenge.", http.StatusUnauthorized)
+		return nil, response.NewHttpError(nil, response.ErrWalletAddressDoesNotMatchChallenge, http.StatusUnauthorized)
 	}
 
 	if time.Now().UTC().After(challenge.ExpiresAt) {
-		return nil, response.NewHttpError(nil, "MetaMask challenge expired.", http.StatusUnauthorized)
+		return nil, response.NewHttpError(nil, response.ErrMetaMaskChallengeExpired, http.StatusUnauthorized)
 	}
 
 	recoveredAddress, err := recoverWalletAddress(input.Message, input.Signature)
 	if err != nil {
-		return nil, response.NewHttpError(nil, "Invalid MetaMask signature.", http.StatusUnauthorized)
+		return nil, response.NewHttpError(nil, response.ErrInvalidMetaMaskSignature, http.StatusUnauthorized)
 	}
 
 	if recoveredAddress != walletAddress {
-		return nil, response.NewHttpError(nil, "Invalid MetaMask signature.", http.StatusUnauthorized)
+		return nil, response.NewHttpError(nil, response.ErrInvalidMetaMaskSignature, http.StatusUnauthorized)
 	}
 
 	user, err := a.findOrCreateWalletUser(ctx, walletAddress)
@@ -85,10 +85,9 @@ func (a MetaMaskSignInAction) findOrCreateWalletUser(ctx context.Context, wallet
 
 	walletAddressCopy := walletAddress
 	user = &models.User{
-		DisplayEmail:  walletAddress,
-		Password:      "",
+		Password:      nil,
 		IsVerified:    true,
-		AuthProvider:  "metamask",
+		AuthMethod:    "metamask",
 		WalletAddress: &walletAddressCopy,
 	}
 
@@ -101,9 +100,8 @@ func (a MetaMaskSignInAction) findOrCreateWalletUser(ctx context.Context, wallet
 
 func (a MetaMaskSignInAction) syncWalletUser(ctx context.Context, user *models.User, walletAddress string) (*models.User, error) {
 	walletAddressCopy := walletAddress
-	user.DisplayEmail = walletAddress
 	user.IsVerified = true
-	user.AuthProvider = "metamask"
+	user.AuthMethod = "metamask"
 	user.WalletAddress = &walletAddressCopy
 
 	if err := a.userRepo.UpdateUser(ctx, user); err != nil {

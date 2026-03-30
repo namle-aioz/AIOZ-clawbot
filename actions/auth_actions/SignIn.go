@@ -36,13 +36,13 @@ func (a SignInAction) Exec(ctx context.Context, input SignInInput) (*SignInOutpu
 	user, err := a.userRepo.GetUserByEmail(ctx, input.Email)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, response.NewHttpError(nil, "Invalid email or password.", http.StatusUnauthorized)
+			return nil, response.NewHttpError(nil, response.ErrInvalidUserAndPassword, http.StatusUnauthorized)
 		}
 		return nil, response.NewInternalError(err)
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-		return nil, response.NewHttpError(nil, "Invalid email or password.", http.StatusUnauthorized)
+		return nil, response.NewHttpError(nil, response.ErrInvalidUserAndPassword, http.StatusUnauthorized)
 	}
 
 	accessToken, refreshToken, _, err := a.tokenIssuer.CreateCredential(user.Id)

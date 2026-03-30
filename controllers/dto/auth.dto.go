@@ -7,8 +7,28 @@ type SignInRequest struct {
 	Password string `json:"password" validate:"required,min=6"`
 }
 
-type GoogleSignInRequest struct {
-	IDToken string `json:"id_token" validate:"required"`
+type SignInResponse struct {
+	AccessToken  string       `json:"access_token"`
+	RefreshToken string       `json:"refresh_token"`
+	User         *models.User `json:"user"`
+}
+
+type SignUpRequest struct {
+	Email string `json:"email"    validate:"required,email"`
+}
+
+type ResendOTPRequest struct {
+}
+
+type VerifyOTPRequest struct {
+	Password string `json:"password" validate:"required,min=6"`
+	OTPCode  string `json:"otp_code" validate:"required,len=6"`
+}
+
+type VerifyOTPResponse struct {
+	AccessToken  string       `json:"access_token"`
+	RefreshToken string       `json:"refresh_token"`
+	User         *models.User `json:"user"`
 }
 
 type MetaMaskChallengeRequest struct {
@@ -24,10 +44,4 @@ type MetaMaskSignInRequest struct {
 	WalletAddress string `json:"wallet_address" validate:"required"`
 	Message       string `json:"message" validate:"required"`
 	Signature     string `json:"signature" validate:"required"`
-}
-
-type SignInResponse struct {
-	AccessToken  string       `json:"access_token"`
-	RefreshToken string       `json:"refresh_token"`
-	User         *models.User `json:"user"`
 }

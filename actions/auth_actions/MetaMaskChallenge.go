@@ -40,11 +40,9 @@ func NewMetaMaskChallengeAction() MetaMaskChallengeAction {
 }
 
 func (a MetaMaskChallengeAction) Exec(ctx context.Context, input MetaMaskChallengeInput) (*MetaMaskChallengeOutput, error) {
-	_ = ctx
-
 	walletAddress := strings.ToLower(strings.TrimSpace(input.WalletAddress))
 	if walletAddress == "" || !common.IsHexAddress(walletAddress) {
-		return nil, response.NewHttpError(nil, "Invalid wallet address.", http.StatusBadRequest)
+		return nil, response.NewHttpError(nil, response.ErrInvalidWalletAddress, http.StatusBadRequest)
 	}
 
 	now := time.Now().UTC()

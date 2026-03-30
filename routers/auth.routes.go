@@ -17,7 +17,9 @@ func NewAuthRouteController(authController controllers.AuthController) AuthRoute
 func (rc *AuthRouteController) RegisterRoute(g *echo.Group) {
 	auth := g.Group("/auth")
 	auth.POST("/signin", rc.authController.SignIn)
-	auth.POST("/google", rc.authController.GoogleSignIn)
+	auth.POST("/signup", rc.authController.SignUp)
+	auth.POST("/verify-otp", rc.authController.VerifyOTP)
+	auth.POST("/resend-otp", rc.authController.ResendOTPcode)
 	auth.POST("/metamask/challenge", rc.authController.MetaMaskChallenge)
 	auth.POST("/metamask", rc.authController.MetaMaskSignIn)
 }

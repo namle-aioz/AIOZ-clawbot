@@ -8,12 +8,15 @@ import (
 )
 
 type Config struct {
-	DBHost         string `mapstructure:"POSTGRES_HOST"`
-	DBUserName     string `mapstructure:"POSTGRES_USER"`
-	DBUserPassword string `mapstructure:"POSTGRES_PASSWORD"`
-	DBName         string `mapstructure:"POSTGRES_DB"`
-	DBPort         string `mapstructure:"POSTGRES_PORT"`
-	ServerPort     string `mapstructure:"PORT"`
+	DBHost           string `mapstructure:"POSTGRES_HOST"`
+	DBUserName       string `mapstructure:"POSTGRES_USER"`
+	DBUserPassword   string `mapstructure:"POSTGRES_PASSWORD"`
+	DBName           string `mapstructure:"POSTGRES_DB"`
+	DBPort           string `mapstructure:"POSTGRES_PORT"`
+	ServerPort       string `mapstructure:"PORT"`
+	ResendMailAPIKey string `mapstructure:"RESEND_MAIL_API_KEY"`
+	EmailFrom        string `mapstructure:"EMAIL_FROM"`
+	SessionSecret    string `mapstructure:"SESSION_SECRET"`
 
 	AccessTokenPrivateKey  string        `mapstructure:"ACCESS_TOKEN_PRIVATE_KEY"`
 	AccessTokenPublicKey   string        `mapstructure:"ACCESS_TOKEN_PUBLIC_KEY"`
@@ -23,7 +26,7 @@ type Config struct {
 	RefreshTokenExpiresIn  time.Duration `mapstructure:"REFRESH_TOKEN_EXPIRED_IN"`
 	AccessTokenMaxAge      int           `mapstructure:"ACCESS_TOKEN_MAXAGE"`
 	RefreshTokenMaxAge     int           `mapstructure:"REFRESH_TOKEN_MAXAGE"`
-	GoogleClientID         string        `mapstructure:"GOOGLE_CLIENT_ID"`
+	BcryptCost             int           `mapstructure:"BCRYPT_COST"`
 }
 
 func MustLoadConfig(path string, stage string) (config *Config) {

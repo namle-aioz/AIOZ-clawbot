@@ -42,15 +42,6 @@ func (r *userRepository) GetUserByEmail(ctx context.Context, email string) (*mod
 	return &user, nil
 }
 
-func (r *userRepository) GetUserByGoogleSubject(ctx context.Context, googleSubject string) (*models.User, error) {
-	var user models.User
-	if err := r.db.WithContext(ctx).Where("google_subject = ?", googleSubject).First(&user).Error; err != nil {
-		return nil, err
-	}
-
-	return &user, nil
-}
-
 func (r *userRepository) GetUserByWalletAddress(ctx context.Context, walletAddress string) (*models.User, error) {
 	var user models.User
 	if err := r.db.WithContext(ctx).Where("wallet_address = ?", strings.ToLower(walletAddress)).First(&user).Error; err != nil {

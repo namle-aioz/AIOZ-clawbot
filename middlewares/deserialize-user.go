@@ -28,13 +28,13 @@ func DeserializeUser(
 			user, err := userRepo.GetUserById(c.Request().Context(), userId)
 			if err != nil {
 				if err == gorm.ErrRecordNotFound {
-					return response.HandleFailStatus(c, "Record not found.", http.StatusUnauthorized)
+					return response.HandleFailStatus(c, response.ErrUserNotExit, http.StatusUnauthorized)
 				}
 				return response.HandleErrorStatus(c, err, "DeserializeUser")
 			}
 
 			if !user.IsVerified {
-				return response.HandleFailStatus(c, "Your account is not verified.", http.StatusForbidden)
+				return response.HandleFailStatus(c, response.ErrAccountNotVerified, http.StatusForbidden)
 			}
 
 			sessionId, err := uuid.Parse(c.Request().Header.Get("Sync-Session-Id"))
@@ -58,20 +58,17 @@ func getUserIdFromToken(c echo.Context, t token.TokenIssuer) (uuid.UUID, error) 
 	}
 
 	if accessToken == "" {
-		return uuid.Nil, response.NewHttpErrorWithNoMsg(
-			fmt.Errorf("you are not logged in"),
-			http.StatusUnauthorized,
-		)
+		return uuid.Nil, response.NewHttpError(nil, response.ErrCodeHeaderNotExit, http.StatusUnauthorized)
 	}
 
 	sub, err := t.ValidateAccessToken(accessToken)
 	if err != nil {
-		return uuid.Nil, response.NewHttpErrorWithNoMsg(response.InvalidToken, http.StatusUnauthorized)
+		return uuid.Nil, response.NewHttpError(nil, response.ErrCodeAuthTokenInvalid, http.StatusUnauthorized)
 	}
 
 	userId, err := uuid.Parse(fmt.Sprint(sub["user_id"]))
 	if err != nil {
-		return uuid.Nil, response.NewHttpErrorWithNoMsg(response.InvalidToken, http.StatusUnauthorized)
+		return uuid.Nil, response.NewHttpError(nil, response.ErrCodeAuthTokenInvalid, http.StatusUnauthorized)
 	}
 
 	return userId, nil
